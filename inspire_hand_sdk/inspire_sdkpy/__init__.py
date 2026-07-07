@@ -5,15 +5,28 @@
 
 """
 
+import importlib
+
 from .inspire_hand_defaut import *
 from . import inspire_dds
 from .inspire_sdk import ModbusDataHandler
-from .qt_tabs import ImageTab,MainWindow,CurveTab
 
 __all__ = [
 	"inspire_dds",
 	"ModbusDataHandler",
-  "ImageTab",
-  "MainWindow",
-  "CurveTab"
+	"ImageTab",
+	"MainWindow",
+	"CurveTab",
+	"qt_tabs",
 ]
+
+_QT_TAB_NAMES = {"ImageTab", "MainWindow", "CurveTab"}
+
+
+def __getattr__(name):
+	if name in _QT_TAB_NAMES or name == "qt_tabs":
+		qt_tabs = importlib.import_module(".qt_tabs", __name__)
+		if name == "qt_tabs":
+			return qt_tabs
+		return getattr(qt_tabs, name)
+	raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
